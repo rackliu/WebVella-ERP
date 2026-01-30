@@ -228,10 +228,31 @@ namespace WebVella.Erp.Plugins.Project
 								}
 							}
 						}
-						#endregion
+                        //Patch 20251229
+                        {
+                            var patchVersion = 20251229;
+                            if (currentPluginSettings.Version < patchVersion)
+                            {
+                                try
+                                {
+                                    currentPluginSettings.Version = patchVersion;
+                                    Patch20251229(entMan, relMan, recMan);
+                                }
+                                catch (ValidationException ex)
+                                {
+                                    var exception = ex;
+                                    throw ex;
+                                }
+                                catch (Exception)
+                                {
+                                    throw;
+                                }
+                            }
+                        }
+                        #endregion
 
 
-						SavePluginData(JsonConvert.SerializeObject(currentPluginSettings));
+                        SavePluginData(JsonConvert.SerializeObject(currentPluginSettings));
 
 						connection.CommitTransaction();
 						//connection.RollbackTransaction();
