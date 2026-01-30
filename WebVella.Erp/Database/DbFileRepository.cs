@@ -165,7 +165,7 @@ namespace WebVella.Erp.Database
 
 					var result = Find(filepath);
 
-					if(ErpSettings.EnableCloudBlobStorage)
+					if (ErpSettings.EnableCloudBlobStorage)
 					{
 						var path = GetBlobPath(result);
 						using (IBlobStorage storage = GetBlobStorage())
@@ -326,7 +326,7 @@ namespace WebVella.Erp.Database
 					command.Parameters.Add(new NpgsqlParameter("@id", srcFile.Id));
 					command.Parameters.Add(new NpgsqlParameter("@filepath", destinationFilepath));
 					command.ExecuteNonQuery();
-					if(ErpSettings.EnableCloudBlobStorage)
+					if (ErpSettings.EnableCloudBlobStorage)
 					{
 						var srcPath = StoragePath.Combine(StoragePath.RootFolderPath, sourceFilepath);
 						var destinationPath = StoragePath.Combine(StoragePath.RootFolderPath, destinationFilepath);
@@ -342,7 +342,7 @@ namespace WebVella.Erp.Database
 							}
 
 						}
-					} 
+					}
 					else if (ErpSettings.EnableFileSystemStorage)
 					{
 						var srcFileName = Path.GetFileName(sourceFilepath);
@@ -392,7 +392,7 @@ namespace WebVella.Erp.Database
 				try
 				{
 					connection.BeginTransaction();
-					if(ErpSettings.EnableCloudBlobStorage && file.ObjectId == 0)
+					if (ErpSettings.EnableCloudBlobStorage && file.ObjectId == 0)
 					{
 						var path = GetBlobPath(file);
 						using (IBlobStorage storage = GetBlobStorage())
@@ -402,15 +402,16 @@ namespace WebVella.Erp.Database
 								storage.DeleteAsync(path).Wait();
 							}
 						}
-					} else if (ErpSettings.EnableFileSystemStorage && file.ObjectId == 0)
+					}
+					else if (ErpSettings.EnableFileSystemStorage && file.ObjectId == 0)
 					{
 						var path = GetFileSystemPath(file);
-						if( File.Exists(path))
+						if (File.Exists(path))
 							File.Delete(path);
 					}
 					else
 					{
-						if( file.ObjectId != 0 )
+						if (file.ObjectId != 0)
 							new NpgsqlLargeObjectManager(connection.connection).Unlink(file.ObjectId);
 					}
 
@@ -460,7 +461,7 @@ namespace WebVella.Erp.Database
 			{
 				var command = connection.CreateCommand(string.Empty);
 				command.CommandText = "SELECT filepath FROM files WHERE filepath ILIKE @tmp_path";
-				command.Parameters.Add(new NpgsqlParameter("@tmp_path", "%" + FOLDER_SEPARATOR + TMP_FOLDER_NAME));
+				command.Parameters.Add(new NpgsqlParameter("@tmp_path", FOLDER_SEPARATOR + TMP_FOLDER_NAME + "%"));
 				new NpgsqlDataAdapter(command).Fill(table);
 			}
 
@@ -471,7 +472,7 @@ namespace WebVella.Erp.Database
 		internal static IBlobStorage GetBlobStorage(string overrideConnectionString = null)
 		{
 			return StorageFactory.Blobs.FromConnectionString(string.IsNullOrWhiteSpace(overrideConnectionString) ? ErpSettings.CloudBlobStorageConnectionString : overrideConnectionString);
-		} 
+		}
 
 		internal static string GetFileSystemPath(DbFile file)
 		{
@@ -500,7 +501,7 @@ namespace WebVella.Erp.Database
 			var depth2Folder = guidIinitialPart.Substring(2, 2);
 			string filenameExt = Path.GetExtension(fileName);
 
-			
+
 			if (!string.IsNullOrWhiteSpace(filenameExt))
 				return StoragePath.Combine(depth1Folder, depth2Folder, file.Id + filenameExt);
 			else
